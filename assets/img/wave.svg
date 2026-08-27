@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="presentation" aria-hidden="true">
+  <g fill="none" stroke-linecap="round">
+    <path d="M4 92c22-26 44-26 66 0s44 26 66 0 44-26 66 0 44 26 66 0"
+          stroke="#0067C5" stroke-width="7" opacity=".95"/>
+    <path d="M4 68c22-26 44-26 66 0s44 26 66 0 44-26 66 0 44 26 66 0"
+          stroke="#007F3E" stroke-width="6" opacity=".8"/>
+    <path d="M4 44c22-26 44-26 66 0s44 26 66 0 44-26 66 0 44 26 66 0"
+          stroke="#AE8439" stroke-width="5" opacity=".6"/>
+  </g>
+</svg>

@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Islander Residency — Observation Log</title>
+<meta name="description" content="Log POP Cycle and Walkthrough observations for the Islander Residency and write them to the IR26 Observations spreadsheet.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/ir.css">
+</head>
+<body>
+
+<header class="masthead no-print">
+  <div class="masthead-inner">
+    <h1>Islander Residency</h1>
+    <span class="tagline">Observation Log</span>
+    <span class="sheet-ref">
+      Writes to <a href="https://docs.google.com/spreadsheets/d/1pSXwXoP-nRYKqN-6e_kAE9VCpSKTRe-ywraCLsk1fIA/edit" target="_blank" rel="noopener">IR26 Observations</a>
+    </span>
+  </div>
+</header>
+<div class="band-bar no-print">
+  <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span>
+</div>
+
+<main class="wrap">
+
+  <!-- ============ STEP 1 — SHELL ============ -->
+  <section class="surface no-print" data-wave id="step1">
+    <div class="surface-head">
+      <span class="step-badge">Step 1</span>
+      <h2>Observation Shell</h2>
+      <div class="spacer"></div>
+      <div class="mode-toggle" role="group" aria-label="Observation mode">
+        <button type="button" id="modePop" aria-pressed="true">POP Cycle</button>
+        <button type="button" id="modeWt" class="wt" aria-pressed="false">Walkthrough</button>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="school">School</label>
+        <select id="school"><option value="">Select a school…</option></select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="resident">Resident</label>
+        <select id="resident" disabled><option value="">Select a school first</option></select>
+        <div class="hint" id="residentNote"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="hostTeacher">Host Teacher <span class="faint">(auto-filled)</span></label>
+        <input type="text" id="hostTeacher" readonly placeholder="—">
+      </div>
+      <div class="field">
+        <label class="field-label" for="teaId">TEA ID <span class="faint">(auto-filled)</span></label>
+        <input type="text" id="teaId" readonly placeholder="—">
+        <div class="hint" id="teaIdNote"></div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field" id="popCycleField">
+        <label class="field-label" for="popCycle">POP Cycle #</label>
+        <select id="popCycle">
+          <option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+      <div class="field hidden" id="wtNumberField">
+        <label class="field-label" for="wtNumber">Walkthrough #</label>
+        <select id="wtNumber"><option value="">—</option></select>
+        <div class="hint" id="wtSuggestion"></div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="timeIn">Time In</label>
+        <div class="stamp-row">
+          <button type="button" class="btn ghost" id="stampIn">Stamp now</button>
+          <input type="text" id="timeIn" placeholder="Not stamped" aria-label="Time in, ISO 8601, America/Chicago">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="timeOut">Time Out</label>
+        <div class="stamp-row">
+          <button type="button" class="btn ghost" id="stampOut">Stamp now</button>
+          <input type="text" id="timeOut" placeholder="Not stamped" aria-label="Time out, ISO 8601, America/Chicago">
+        </div>
+        <div class="hint" id="durationNote"></div>
+      </div>
+    </div>
+    <p class="hint">Stamps are ISO 8601 in America/Chicago. Both fields accept a manual override.</p>
+
+    <div class="field">
+      <label class="field-label" for="notes">Rough notes</label>
+      <textarea id="notes" class="notes-box"
+        placeholder="Paste your notes — Keep, typed, dictated."></textarea>
+      <div class="hint" id="notesSourceNote">This is the only evidence source, plus any uploaded packet.</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="contentArea">Content Area</label>
+        <input type="text" id="contentArea" placeholder="e.g. RLA 7th">
+      </div>
+      <div class="field">
+        <label class="field-label" for="sourceNotesLink">Source Notes link <span class="faint">(Keep / Wave)</span></label>
+        <input type="text" id="sourceNotesLink" placeholder="https://…">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 — POP CYCLE ============ -->
+  <section class="surface no-print" data-wave id="step2">
+    <div class="surface-head">
+      <span class="step-badge">Step 2</span>
+      <h2>POP Cycle — Post-Conference Packet &amp; Anchor Assessment</h2>
+      <div class="spacer"></div>
+      <span class="count-pill" id="rubricCount">0 / 12 rows complete</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="packetFile">Post-Conference Packet <span class="faint">(Appendix G)</span></label>
+      <div class="btn-row">
+        <input type="file" id="packetFile" accept=".pdf,.txt,.md,.json">
+        <button type="button" class="btn ghost" id="clearPacket">Clear</button>
+      </div>
+      <div class="hint">Upload the packet, or paste its text below. Ratings are tick marks in the PDF and cannot be attributed to a dimension reliably, so they are always entered by hand — the parser never guesses a score.</div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="packetText">…or paste the packet text</label>
+      <textarea id="packetText" placeholder="Paste the Appendix G packet text here."></textarea>
+      <div class="btn-row" style="margin-top:.5rem">
+        <button type="button" class="btn ghost" id="parsePacketText">Parse pasted text</button>
+      </div>
+    </div>
+    <div id="packetReport"></div>
+
+    <h3 style="margin-top:1.4rem">Pre-Conference Summary</h3>
+    <div class="field">
+      <label class="field-label" for="lessonObjective">Stated lesson objective / focus</label>
+      <textarea id="lessonObjective" rows="2"></textarea>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="plannedStrategies">Planned strategies / activities</label>
+        <textarea id="plannedStrategies" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="anticipatedChallenges">Anticipated challenges</label>
+        <textarea id="anticipatedChallenges" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="lessonTopic">Lesson Topic / Subject <span class="faint">(sheet column G)</span></label>
+      <input type="text" id="lessonTopic" placeholder="e.g. ACE writing — feedback craft">
+    </div>
+
+    <h3 style="margin-top:1.4rem">Growth Summary</h3>
+    <div class="callout">
+      Opens verbatim: <em>“Since your last observation on [DATE], you have worked to improve the refinement by…”</em>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="priorObservationDate">Prior observation date</label>
+        <input type="text" id="priorObservationDate" placeholder="YYYY-MM-DD">
+      </div>
+      <div class="field">
+        <label class="field-label" for="priorRefinement">Prior cycle refinement (R−)</label>
+        <input type="text" id="priorRefinement" placeholder="From the previous POP cycle">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="growthEvidence">Evidence connecting this observation to the prior R−</label>
+      <textarea id="growthEvidence" rows="2"></textarea>
+    </div>
+    <div class="field" id="wtTrendField">
+      <label class="field-label" for="wtTrendImport">Walkthrough rows for the WT5–WT8 trend table</label>
+      <textarea id="wtTrendImport" rows="3" placeholder='Paste rows from the Walkthroughs tab as JSON, e.g. [{"Resident Name":"…","Walkthrough #":"5","Reflection & Growth Feedback":"R+: … | R−: …","Follow-up Action":"…"}]'></textarea>
+      <div class="hint" id="trendNote">Locally logged walkthroughs are included automatically. The trend table appears from POP Cycle 2 onward; anything missing is shown as missing, never filled in.</div>
+    </div>
+
+    <h3 style="margin-top:1.4rem">Reinforcement</h3>
+    <div class="callout">
+      Opens verbatim: <em>“During your last observation, you did well on [Domain/Indicator]. In this observation, you continue this trend.”</em> Closes with <em>“What is your goal for the next walkthrough?”</em>
+    </div>
+    <div class="field">
+      <label class="field-label" for="reinforcementDomain">Domain / Indicator</label>
+      <select id="reinforcementDomain"><option value="">Select a dimension…</option></select>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="reinforcementEvidence">Cited evidence</label>
+        <textarea id="reinforcementEvidence" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="reinforcementWhy">Why this matters</label>
+        <textarea id="reinforcementWhy" rows="2"></textarea>
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.4rem">Refinement</h3>
+    <div class="field">
+      <label class="field-label" for="refinementDomain">Domain / Indicator</label>
+      <select id="refinementDomain"><option value="">Select a dimension…</option></select>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="refinementEvidence">Cited evidence</label>
+        <textarea id="refinementEvidence" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="refinementStrategy">Research-based strategy <span class="faint">(UDL / Marzano)</span></label>
+        <textarea id="refinementStrategy" rows="2" placeholder="UDL guideline or checkpoint, or a Marzano-aligned strategy"></textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="refinementPriorLink">Connection to prior feedback <span class="faint">(if relevant)</span></label>
+      <input type="text" id="refinementPriorLink">
+    </div>
+
+    <h3 style="margin-top:1.4rem">Rubric Alignment Table</h3>
+    <div class="callout warn" id="rubricFidelityNote"></div>
+    <div style="overflow-x:auto">
+      <table class="rubric" id="rubricTable"><tbody></tbody></table>
+    </div>
+
+    <h3 style="margin-top:1.4rem">Required Domain Comments <span class="faint small">(TEA-required, one per domain)</span></h3>
+    <div class="field">
+      <label class="field-label" for="domainComment1">Domain 1 — Planning (1.1–1.4)</label>
+      <textarea id="domainComment1" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label" for="domainComment2">Domain 2 — Instruction (2.1–2.5)</label>
+      <textarea id="domainComment2" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label" for="domainComment3">Domain 3 — Learning Environment (3.1–3.3)</label>
+      <textarea id="domainComment3" rows="2"></textarea>
+    </div>
+
+    <h3 style="margin-top:1.4rem">Sheet Fields</h3>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="smartGoal">SMART Goal / Next Steps</label>
+        <textarea id="smartGoal" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="udlStrategy">UDL Strategy Noted</label>
+        <textarea id="udlStrategy" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label class="field-label" for="slUploadStatus">SL&amp;L Upload Status</label>
+        <select id="slUploadStatus">
+          <option>Not yet uploaded</option><option>Pending</option><option>Uploaded</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="slUploadDate">SL&amp;L Upload Date</label>
+        <input type="text" id="slUploadDate" placeholder="YYYY-MM-DD">
+      </div>
+      <div class="field">
+        <label class="field-label" for="reportDocLink">Anchor Report Doc link</label>
+        <input type="text" id="reportDocLink" placeholder="https://docs.google.com/…">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 — WALKTHROUGH ============ -->
+  <section class="surface no-print hidden" data-wave id="step3">
+    <div class="surface-head">
+      <span class="step-badge green">Step 3</span>
+      <h2>Walkthrough — Site Coordinator Feedback</h2>
+      <div class="spacer"></div>
+      <span class="chip grey">Notes only — no packet</span>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label class="field-label" for="grade">Grade</label>
+        <input type="text" id="grade" placeholder="e.g. 7">
+      </div>
+      <div class="field">
+        <label class="field-label" for="focusArea">Focus Domain / Area</label>
+        <input type="text" id="focusArea" placeholder="e.g. Domain 2 — Questioning">
+      </div>
+      <div class="field">
+        <label class="field-label" for="durationOverride">Duration (min) <span class="faint">(auto)</span></label>
+        <input type="text" id="durationOverride" placeholder="From Time In/Out">
+      </div>
+    </div>
+
+    <h3>Host Teacher</h3>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="htCoachingGoal">Current coaching goal with the IR</label>
+        <textarea id="htCoachingGoal" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="htFeedback">Actionable feedback / coaching strategy used</label>
+        <textarea id="htFeedback" rows="2"></textarea>
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.2rem">Site Coordinator</h3>
+    <div class="field">
+      <label class="field-label" for="coTeachingModel">Co-Teaching model observed</label>
+      <select id="coTeachingModel"><option value="">Select…</option></select>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label" for="rPlus">R+ <span class="faint">(area of strength)</span></label>
+        <textarea id="rPlus" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="rPlusEvidence">R+ evidence <span class="faint">(from the notes)</span></label>
+        <textarea id="rPlusEvidence" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="rMinus">R− <span class="faint">(area of growth)</span></label>
+        <textarea id="rMinus" rows="2"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="rMinusEvidence">R− evidence <span class="faint">(from the notes)</span></label>
+        <textarea id="rMinusEvidence" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="actionSteps">Actionable Feedback / Action Steps / Resources</label>
+      <textarea id="actionSteps" rows="2"></textarea>
+    </div>
+    <div class="field">
+      <label class="field-label" for="photoFile">Student work photo <span class="faint">(optional)</span></label>
+      <input type="file" id="photoFile" accept="image/*">
+      <div class="hint">Stays in your browser and is embedded in the exported page. It is never uploaded anywhere by this site.</div>
+    </div>
+    <div class="callout">
+      The resident's reflection prompts are printed blank on the report. This tool never writes the resident's reflection for them.
+    </div>
+  </section>
+
+  <!-- ============ REPORT PREVIEW ============ -->
+  <section class="surface" id="reportSection">
+    <div class="surface-head no-print">
+      <span class="step-badge gold">Report</span>
+      <h2 id="reportTitle">Anchor Assessment Report</h2>
+      <div class="spacer"></div>
+      <div class="btn-row">
+        <button type="button" class="btn ghost" id="refreshReport">Refresh</button>
+        <button type="button" class="btn ghost" id="printReport">Print</button>
+        <button type="button" class="btn ghost" id="downloadDoc">Download Doc (.html)</button>
+      </div>
+    </div>
+    <div id="reportOut"></div>
+  </section>
+
+  <!-- ============ STEP 4 — GUARDRAILS & SUBMIT ============ -->
+  <section class="surface no-print" data-wave id="step4">
+    <div class="surface-head">
+      <span class="step-badge red">Step 4</span>
+      <h2>Checks &amp; Confirm the Row</h2>
+      <div class="spacer"></div>
+      <span class="chip grey" id="tabChip">POP Cycles</span>
+    </div>
+
+    <div id="checksOut"></div>
+
+    <h3 style="margin-top:1.2rem">Exact row to be written</h3>
+    <p class="hint">This is precisely what <span class="mono">log_observation</span> will append. The spreadsheet is the system of record for SL&amp;L — read it before you confirm.</p>
+    <div class="diff" id="diffOut"></div>
+
+    <div class="field" style="margin-top:1rem">
+      <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.86rem;cursor:pointer">
+        <input type="checkbox" id="confirmRow" style="width:auto;margin-top:.2rem">
+        <span>I have read the row above and confirm it is correct for
+          <strong id="confirmWho">this resident</strong>.</span>
+      </label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn red" id="submitRow" disabled>Write to spreadsheet</button>
+      <button type="button" class="btn ghost" id="copyCall" disabled>Copy log_observation call</button>
+    </div>
+    <div id="submitOut" style="margin-top:1rem"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer no-print">
+  <div class="band-bar">
+    <span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span><span class="b5"></span>
+  </div>
+  <div class="footer-inner">
+    <span><strong>Islander Residency</strong> · TAMU-CC · Corpus Christi ISD</span>
+    <span>IAT rubric and walkthrough windows per the TAMU-CC Islander Residency Program Guide 2026–2027, Appendices E and G.</span>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
