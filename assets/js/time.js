@@ -93,3 +93,27 @@ export function timeRange(inStamp, outStamp) {
     ? `${date} · ${clock(a[2], a[3])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`
     : `${date} · ${clock(a[2], a[3])} ${mer(a[2])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`;
 }
+
+/**
+ * Clock-only range for a report header that already shows the Observation Date in its
+ * own field: "9:15 - 10:04 a.m. CT". Falls back to the full stamp if the two stamps
+ * land on different days, where the date genuinely carries meaning.
+ */
+export function clockRange(inStamp, outStamp) {
+  if (!inStamp) return '';
+  const a = String(inStamp).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  if (!a) return prettyStamp(inStamp);
+
+  const clock = (h, m) => `${+h % 12 || 12}:${m}`;
+  const mer = (h) => (+h < 12 ? 'a.m.' : 'p.m.');
+
+  if (!outStamp) return `${clock(a[2], a[3])} ${mer(a[2])} CT`;
+
+  const b = String(outStamp).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  if (!b) return `${clock(a[2], a[3])} ${mer(a[2])} CT`;
+  if (a[1] !== b[1]) return timeRange(inStamp, outStamp);
+
+  return mer(a[2]) === mer(b[2])
+    ? `${clock(a[2], a[3])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`
+    : `${clock(a[2], a[3])} ${mer(a[2])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`;
+}

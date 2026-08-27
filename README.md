@@ -55,10 +55,14 @@ when POP Cycle > 1) · 4. Reinforcement · 5. Refinement · 6. Rubric Alignment 
 
 The report is a **single unbroken column** read top to bottom, and carries those seven
 sections and nothing else. It is deliberately *not* laid out in columns: a column break
-reorders what the reader encounters and destroys the specified 2→3→4→5 flow. A
-fully-populated report with a walkthrough trend table runs to two pages — legibility and
-the specified order take priority over fitting one page, and the verifier reports the
-page count rather than asserting it.
+reorders what the reader encounters and destroys the specified 2→3→4→5 flow.
+
+It is set as a document meant to be read — 0.8in × 0.85in page margins, 10.5pt type at
+1.6 line height, real typographic hierarchy, and tables ruled horizontally rather than
+boxed in a grid. A fully-populated report with a walkthrough trend table runs to about
+three pages. **Legibility and the specified order take priority over page count**; the
+verifier reports the page count rather than asserting it, and sections break between
+each other rather than inside one.
 
 ### Step 3 — Walkthrough
 Notes only, plus an optional student-work photo (the photo stays in your browser and is

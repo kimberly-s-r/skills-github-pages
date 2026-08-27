@@ -15,7 +15,7 @@
  */
 
 import { IAT_ROWS, DOMAINS, printedLabel, printedLabelCompact, NO_EVIDENCE, RATINGS } from './data/iat.js';
-import { prettyStamp, dateOf, timeRange } from './time.js';
+import { prettyStamp, dateOf, clockRange } from './time.js';
 import { performanceGate } from './guardrails.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) =>
@@ -107,8 +107,8 @@ ${rows.map((r) => `    <tr><td>WT${r.number}</td>${
 }
 
 function rubricTable(rubric = {}) {
-  const parts = [`<table>
-  <thead><tr><th style="width:22%">Dimension (as printed)</th><th style="width:20%">Rating</th><th>Evidence</th></tr></thead>
+  const parts = [`<table class="rubric-alignment">
+  <thead><tr><th style="width:26%">Dimension (as printed)</th><th style="width:19%">Rating</th><th>Evidence</th></tr></thead>
   <tbody>`];
 
   for (const d of DOMAINS) {
@@ -120,10 +120,15 @@ function rubricTable(rubric = {}) {
         ? `<span class="no-evidence">${NO_EVIDENCE}</span>`
         : esc(evidence).replace(/\n/g, '<br>');
       const src = provenanceFor(e);
+      // A dimension the packet prints without a number or title says so in plain
+      // words rather than a bracketed code, and is identified by its slot.
+      const dimCell = (row.printedNumber || row.printedTitle)
+        ? `<span class="dim-cell">${esc(printedLabelCompact(row))}</span>`
+        : `<span class="dim-slot">${esc(row.shortPosition || row.positionLabel)} — no number or title printed</span>`;
       parts.push(
         `    <tr data-dimension="${esc(row.id)}" data-source="${esc(src)}">` +
-        `<td>${esc(printedLabelCompact(row))}</td>` +
-        `<td>${esc(ratingCell(e))}</td>` +
+        `<td>${dimCell}</td>` +
+        `<td class="rating-cell">${esc(ratingCell(e))}</td>` +
         `<td>${cell}<span class="source-tag" data-source="${esc(src)}"></span></td></tr>`);
     }
   }
@@ -215,7 +220,7 @@ export function buildPopReport(state, opts = {}) {
       <div><span class="rm-k">Content Area</span><span class="rm-v">${S(state.contentArea)}</span></div>
       <div><span class="rm-k">School</span><span class="rm-v">${S(state.schoolName)}</span></div>
       <div><span class="rm-k">Observation Date</span><span class="rm-v">${S(dateOf(state.timeIn))}</span></div>
-      <div><span class="rm-k">Time In / Out</span><span class="rm-v">${S(timeRange(state.timeIn, state.timeOut))}</span></div>
+      <div><span class="rm-k">Time In / Out</span><span class="rm-v">${S(clockRange(state.timeIn, state.timeOut))}</span></div>
     </div>
   </header>
 
@@ -283,34 +288,36 @@ export function toDocHtml(reportHtml, metadata, title) {
   return `<!doctype html>
 <html><head><meta charset="utf-8"><title>${esc(title)}</title>
 <style>
- /* Mirrors the app's print stylesheet: single column, seven sections, ONE PAGE. */
- @page{size:letter;margin:.45in}
- body{font-family:Montserrat,Segoe UI,sans-serif;font-size:8.4pt;line-height:1.38;color:#16181C;margin:0}
+ /* Mirrors the app's print stylesheet so a downloaded Doc reads identically. */
+ @page{size:letter;margin:.8in .85in}
+ body{font-family:Montserrat,Segoe UI,sans-serif;font-size:10.5pt;line-height:1.6;color:#16181C;margin:0}
  h1,h2{font-family:Fraunces,Georgia,serif;color:#16181C}
- h1{font-size:14pt;margin:0 0 1pt;letter-spacing:-.01em}
- .report-sub{font-size:7.6pt;color:#5A6068;margin:0 0 5pt}
- .report-head{border-bottom:2px solid #16181C;padding-bottom:4pt;margin-bottom:7pt}
- h2{font-size:9.4pt;color:#0067C5;margin:0 0 3pt;break-after:avoid}
- section{margin-bottom:7pt;break-inside:avoid}
- p{margin:0 0 3pt}
- .lead{font-weight:700;color:#16181C}
- .closing-q{font-style:italic;color:#0067C5;margin-top:3pt}
- table{width:100%;border-collapse:collapse;font-size:7.4pt;margin:3pt 0}
- th{background:#F4F6F8;text-align:left;border:1px solid #DFE3E8;padding:2pt 3.5pt;font-size:6.6pt;text-transform:uppercase;letter-spacing:.04em;color:#5A6068}
- td{border:1px solid #DFE3E8;padding:2pt 3.5pt;vertical-align:top}
+ h1{font-size:21pt;line-height:1.1;margin:0 0 2pt;letter-spacing:-.02em}
+ .report-sub{font-size:8pt;color:#868C95;margin:0 0 12pt;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+ .report-head{border-bottom:2.5pt solid #0067C5;padding-bottom:11pt;margin-bottom:17pt}
+ .report-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:9pt 18pt;margin:0}
+ .report-meta div{display:flex;flex-direction:column;gap:1pt}
+ .report-meta .rm-k{color:#868C95;font-size:7pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+ .report-meta .rm-v{color:#16181C;font-size:10pt;line-height:1.35}
+ section{margin-bottom:18pt;break-inside:avoid}
+ h2{font-size:13pt;font-weight:600;color:#0067C5;margin:0 0 7pt;letter-spacing:-.01em;break-after:avoid}
+ p{margin:0 0 6pt}
+ .lead{font-weight:600;color:#16181C}
+ .closing-q{font-style:italic;color:#0067C5;margin-top:8pt}
+ table{width:100%;border-collapse:collapse;font-size:9.5pt;margin:8pt 0 4pt}
+ th{text-align:left;padding:0 8pt 4pt 0;font-family:Montserrat,sans-serif;font-size:7pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#868C95;border:none;border-bottom:2px solid #16181C}
+ td{padding:5pt 8pt 5pt 0;border:none;border-bottom:1px solid #EDF0F3;vertical-align:top;line-height:1.45}
  tr{break-inside:avoid}
- .domain-row td{background:#F4F6F8;font-weight:700;font-size:7.2pt}
- .no-evidence{color:#A82D27;font-style:italic}
- .report-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:2pt 14pt;font-size:7.8pt;margin:0}
- .report-meta div{display:flex;flex-direction:column}
- .report-meta .rm-k{color:#5A6068;font-size:6.4pt;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
- .report-meta .rm-v{color:#16181C}
+ thead{display:table-header-group}
+ .domain-row td{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:10pt;color:#16181C;padding-top:10pt;padding-bottom:3pt;border-bottom:1px solid #DFE3E8}
+ .dim-slot{color:#868C95;font-style:italic}
+ .rating-cell{color:#5A6068;white-space:nowrap}
+ .no-evidence{color:#868C95;font-style:italic}
+ .fidelity-note{font-size:8pt;color:#868C95;line-height:1.55;margin:9pt 0 0;padding-left:8pt;border-left:2px solid #DFE3E8}
  .keep-together{break-inside:avoid}
- .fidelity-note{font-size:6.6pt;color:#868C95;line-height:1.3;margin-top:2pt}
- .small{font-size:7pt} .muted{color:#5A6068}
  .report{padding:0;border:none}
  .source-tag,#ir-provenance{display:none}
- .band-bar{display:flex;height:5pt;margin-top:8pt}
+ .band-bar{display:flex;height:6pt;margin-top:20pt}
  .band-bar span{flex:1}
 </style></head>
 <body>
