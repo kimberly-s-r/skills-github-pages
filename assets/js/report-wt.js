@@ -9,7 +9,7 @@
  * resident's own words to write, and this tool never supplies them.
  */
 
-import { prettyStamp, dateOf, durationMinutes } from './time.js';
+import { prettyStamp, dateOf, durationMinutes, timeRange } from './time.js';
 import { windowFor } from './data/windows.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) =>
@@ -60,8 +60,7 @@ export function buildWtReport(state) {
     <div><span class="rm-k">Host Teacher:</span><span class="rm-v">${S(state.hostTeacher)}</span></div>
     <div><span class="rm-k">Campus:</span><span class="rm-v">${S(state.schoolName)}</span></div>
     <div><span class="rm-k">Date:</span><span class="rm-v">${S(dateOf(state.timeIn))}</span></div>
-    <div><span class="rm-k">Time:</span><span class="rm-v">${S(prettyStamp(state.timeIn))}${
-      state.timeOut ? ` – ${esc(prettyStamp(state.timeOut))}` : ''}</span></div>
+    <div><span class="rm-k">Time:</span><span class="rm-v">${S(timeRange(state.timeIn, state.timeOut))}</span></div>
     <div><span class="rm-k">Duration:</span><span class="rm-v">${dur != null ? `${dur} min` : '<span class="no-evidence">Not recorded</span>'}</span></div>
     <div><span class="rm-k">Grade:</span><span class="rm-v">${S(state.grade)}</span></div>
     <div><span class="rm-k">Content:</span><span class="rm-v">${S(state.contentArea)}</span></div>

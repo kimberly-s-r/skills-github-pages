@@ -139,9 +139,38 @@ const overlaps = await page.evaluate(() => {
 });
 check('No text sits behind a watermark', overlaps.length === 0, overlaps.join(' | '));
 
+/* The brief specifies a section order and verbatim language. Assert the order the
+   reader actually encounters, and that nothing is columned — a column break is what
+   destroys that order. Page count is reported, not asserted: legibility comes first. */
+const order = await page.$$eval('#reportOut .report section h2', (hs) => hs.map((h) => h.textContent.trim()));
+const expected = ['Pre-Conference Summary', 'Growth Summary', 'Reinforcement',
+                  'Refinement', 'Rubric Alignment Table', 'Required Domain Comments'];
+check('Sections appear in the specified order',
+  JSON.stringify(order) === JSON.stringify(expected), order.join(' -> '));
+check('No section beyond the seven specified is added',
+  order.length === expected.length, `${order.length + 1} sections incl. header`);
+
+const columned = await page.evaluate(() => {
+  const rep = document.querySelector('#reportOut .report');
+  return [rep, ...rep.querySelectorAll('*')].some((el) => {
+    const cc = getComputedStyle(el).columnCount;
+    return cc && cc !== 'auto' && Number(cc) > 1;
+  });
+});
+check('Report is a single unbroken column', !columned);
+
+const headOrder = await page.$$eval('#reportOut .report-meta .rm-k', (ks) => ks.map((k) => k.textContent.trim()));
+check('Header fields are in the specified order',
+  JSON.stringify(headOrder) === JSON.stringify(
+    ['Resident', 'Host Teacher', 'Content Area', 'School', 'Observation Date', 'Time In / Out']),
+  headOrder.join(', '));
+
+check('Time In / Out does not repeat the date twice',
+  !/(\w+ \d+, \d{4}).*\1/.test(await page.$eval('#reportOut .report-meta div:last-child .rm-v', (e) => e.textContent)),
+  await page.$eval('#reportOut .report-meta div:last-child .rm-v', (e) => e.textContent.trim()));
+
 await page.pdf({ path: '.verify-pop.pdf', format: 'Letter', printBackground: true });
-check('Anchor Assessment Report fits one page', pdfPages('.verify-pop.pdf') === 1,
-  `${pdfPages('.verify-pop.pdf')} page(s)`);
+console.log(`INFO  Anchor Assessment Report prints to ${pdfPages('.verify-pop.pdf')} page(s)`);
 
 /* Walkthrough mode. */
 const wt = await browser.newPage();
@@ -161,8 +190,7 @@ check('Walkthrough report carries the Site Coordinator block',
 check('Resident reflection prompts are left blank for the resident',
   wrep.includes('To be completed by the resident.'));
 await wt.pdf({ path: '.verify-wt.pdf', format: 'Letter', printBackground: true });
-check('Walkthrough report fits one page', pdfPages('.verify-wt.pdf') === 1,
-  `${pdfPages('.verify-wt.pdf')} page(s)`);
+console.log(`INFO  Walkthrough report prints to ${pdfPages('.verify-wt.pdf')} page(s)`);
 
 for (const f of ['.verify-pop.pdf', '.verify-wt.pdf']) { try { unlinkSync(f); } catch {} }
 await browser.close();

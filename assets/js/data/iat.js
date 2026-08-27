@@ -89,7 +89,7 @@ export const IAT_SLOTS = [
   {
     slot: 'd2s3', domain: 2, printedNumber: null, printedTitle: null,
     programDesignation: '2.3 Communication', mergeGroup: '2.3',
-    positionLabel: 'Domain 2 — third dimension as printed',
+    positionLabel: 'Domain 2 — third dimension as printed', shortPosition: 'Domain 2, 3rd slot',
     descriptor: 'Establishes classroom practices for effective communication; recognises and responds to student misunderstandings; provides clear explanations; asks remember/understand/apply level questions; uses probing questions.',
     hasEvidenceRowInSource: false,
     sourceNotes: [
@@ -101,7 +101,7 @@ export const IAT_SLOTS = [
   {
     slot: 'd2s4', domain: 2, printedNumber: null, printedTitle: null,
     programDesignation: '2.4 Differentiation', mergeGroup: '2.4',
-    positionLabel: 'Domain 2 — fourth dimension as printed',
+    positionLabel: 'Domain 2 — fourth dimension as printed', shortPosition: 'Domain 2, 4th slot',
     descriptor: 'Adapts lessons to address individual student needs; monitors the quality of student participation and performance; provides differentiated instructional methods and content; recognises confusion or disengagement and responds.',
     hasEvidenceRowInSource: false,
     sourceNotes: [
@@ -144,7 +144,7 @@ export const IAT_SLOTS = [
   {
     slot: 'd3s3', domain: 3, printedNumber: null, printedTitle: null,
     programDesignation: '3.3 Classroom Culture', mergeGroup: '3.3',
-    positionLabel: 'Domain 3 — third distinct dimension as printed',
+    positionLabel: 'Domain 3 — third distinct dimension as printed', shortPosition: 'Domain 3, 3rd slot',
     descriptor: 'Engages all students in relevant, meaningful learning; students work respectfully individually and in groups.',
     hasEvidenceRowInSource: false,
     sourceNotes: [
@@ -170,6 +170,7 @@ export const IAT_ROWS = (() => {
         printedTitle: slot.printedTitle,
         programDesignation: slot.programDesignation,
         positionLabel: slot.positionLabel || null,
+        shortPosition: slot.shortPosition || null,
         descriptor: slot.descriptor,
         slots: [],
         sourceNotes: [],
@@ -195,6 +196,18 @@ export function printedLabel(row) {
   if (row.printedTitle) parts.push(row.printedTitle);
   if (parts.length) return parts.join(' ');
   return `[no number or title printed] — ${row.positionLabel}`;
+}
+
+/**
+ * Compact single-line form for the printed rubric table. Still says plainly that the
+ * source prints no number or title — it just does so in one line instead of three.
+ */
+export function printedLabelCompact(row) {
+  const parts = [];
+  if (row.printedNumber) parts.push(row.printedNumber);
+  if (row.printedTitle) parts.push(row.printedTitle);
+  if (parts.length) return parts.join(' ');
+  return `[not printed] · ${row.shortPosition || row.positionLabel}`;
 }
 
 export function rowsForDomain(domainId) {

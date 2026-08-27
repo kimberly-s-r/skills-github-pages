@@ -280,28 +280,44 @@ textarea.notes-box { min-height: 190px; font-size: .9rem; }
   opacity: .11; pointer-events: none;
 }
 .report { padding-bottom: calc(var(--wave-h) + var(--wave-gutter) + 12px); }
-.report h1 { font-size: 1.25rem; margin-bottom: .15rem; }
+.report-head { border-bottom: 2px solid var(--residency-black); padding-bottom: .55rem; margin-bottom: .9rem; }
+.report h1 { font-size: 1.3rem; margin: 0 0 .1rem; }
+.report .report-sub { font-size: .78rem; color: var(--ink-muted); margin: 0 0 .7rem; }
 .report h2 {
-  font-size: .95rem; margin: 1.1rem 0 .35rem;
-  padding-bottom: .2rem; border-bottom: 1px solid var(--rule-soft);
-  color: var(--islander-blue);
+  font-size: .98rem; margin: 0 0 .35rem;
+  color: var(--islander-blue); border: none; padding: 0;
 }
-.report h2:first-of-type { margin-top: .6rem; }
+.report section { margin-bottom: 1.05rem; }
+.report section:last-child { margin-bottom: 0; }
+.report p { margin: 0 0 .35rem; }
+.report .lead { font-weight: 700; color: var(--residency-black); }
+.report .closing-q { font-style: italic; color: var(--islander-blue); margin-top: .4rem; }
 .report .report-meta {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: .3rem .9rem; font-size: .8rem; margin: .6rem 0 .2rem;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: .45rem 1.2rem; font-size: .82rem; margin: 0;
 }
-.report .report-meta div { display: flex; gap: .35rem; align-items: baseline; }
-.report .report-meta .rm-k { color: var(--ink-muted); font-weight: 600; white-space: nowrap; }
+.report .report-meta div { display: flex; flex-direction: column; gap: .05rem; }
+.report .report-meta .rm-k {
+  color: var(--ink-muted); font-size: .64rem; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase;
+}
 .report .report-meta .rm-v { color: var(--ink); }
-.report table { width: 100%; border-collapse: collapse; font-size: .76rem; margin: .4rem 0 .6rem; }
+.report table { width: 100%; border-collapse: collapse; font-size: .78rem; margin: .35rem 0; }
 .report th {
-  text-align: left; background: var(--canvas); padding: .35rem .45rem;
-  border: 1px solid var(--rule); font-size: .68rem;
+  text-align: left; background: var(--canvas); padding: .3rem .45rem;
+  border: 1px solid var(--rule); font-size: .66rem;
   letter-spacing: .05em; text-transform: uppercase; color: var(--ink-muted);
 }
-.report td { padding: .35rem .45rem; border: 1px solid var(--rule); vertical-align: top; }
+.report td { padding: .3rem .45rem; border: 1px solid var(--rule); vertical-align: top; }
+.report .domain-row td {
+  background: var(--canvas); font-weight: 700; font-size: .76rem;
+  font-family: var(--font-head);
+}
 .report .no-evidence { color: var(--residency-red); font-style: italic; }
+.report .fidelity-note {
+  font-size: .68rem; color: var(--ink-faint); line-height: 1.35; margin-top: .25rem;
+}
+.report .keep-together { break-inside: avoid; }
 .report .source-tag { display: none; } /* provenance is hidden metadata, never printed */
 
 /* ---------- Five-band footer ---------- */
@@ -335,10 +351,9 @@ textarea.notes-box { min-height: 190px; font-size: .9rem; }
 }
 
 /* ---------- Print ----------
-   The Anchor Assessment Report is specified as ONE PAGE MAXIMUM. A fully-populated
-   report carries 7 sections plus a 12-row rubric table, so print flows the four
-   narrative sections and the domain comments into columns and tightens the type.
-   Screen layout is unaffected. */
+   The report is ONE PAGE and reads top to bottom in the seven specified sections.
+   It is NOT columned: a column break would break the required 1->7 reading order.
+   One page is earned by tight type and by carrying only the specified sections. */
 @media print {
   body { background: #fff; }
   .masthead, .site-footer, .no-print, .btn, .mode-toggle { display: none !important; }
@@ -347,47 +362,30 @@ textarea.notes-box { min-height: 190px; font-size: .9rem; }
 
   .report {
     border: none; border-radius: 0; box-shadow: none;
-    padding: 0 0 .34in; font-size: 7.6pt; line-height: 1.28;
+    padding: 0 0 .3in; font-size: 8.4pt; line-height: 1.38;
   }
-  .report::after {
-    right: 0; bottom: 0; width: 1.35in; height: .62in; opacity: .10;
-  }
+  .report::after { right: 0; bottom: 0; width: 1.3in; height: .6in; opacity: .10; }
 
-  .report h1 { font-size: 12pt; margin: 0 0 1pt; }
-  .report h2 {
-    font-size: 8.2pt; margin: 5pt 0 1.5pt; padding-bottom: 1pt;
-    break-after: avoid; page-break-after: avoid;
-  }
-  .report h2:first-of-type { margin-top: 3pt; }
-  .report p { margin: 0 0 2.5pt; }
+  .report-head { border-bottom: 2px solid #16181C; padding-bottom: 4pt; margin-bottom: 7pt; }
+  .report h1 { font-size: 14pt; margin: 0 0 1pt; }
+  .report .report-sub { font-size: 7.6pt; margin: 0 0 5pt; }
+  .report h2 { font-size: 9.4pt; margin: 0 0 3pt; break-after: avoid; page-break-after: avoid; }
+  .report section { margin-bottom: 7pt; break-inside: avoid; page-break-inside: avoid; }
+  .report p { margin: 0 0 3pt; }
 
-  .report .report-meta {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1pt 8pt; font-size: 7.2pt; margin: 3pt 0 1pt;
-  }
+  .report .report-meta { grid-template-columns: repeat(3, 1fr); gap: 2pt 14pt; font-size: 7.8pt; }
+  .report .report-meta .rm-k { font-size: 6.4pt; }
 
-  /* Four narrative sections side by side — they are short and read fine in columns. */
-  .report .narrative-block {
-    column-count: 2; column-gap: 14pt; column-rule: 1px solid #EDF0F3;
-    margin-bottom: 3pt;
-  }
-  .report .narrative-block > h2 { break-before: avoid; }
-  /* A heading must never be split from the block it introduces by a column break. */
+  .report table { font-size: 7.4pt; margin: 3pt 0; }
+  .report th { padding: 2pt 3.5pt; font-size: 6.6pt; letter-spacing: .04em; }
+  .report td { padding: 2pt 3.5pt; }
+  .report tr { break-inside: avoid; page-break-inside: avoid; }
+  .report .domain-row td { font-size: 7.2pt; }
+
   .report .keep-together { break-inside: avoid; page-break-inside: avoid; }
   .report .keep-together > p:first-child { break-after: avoid; }
-  .report .narrative-block table { font-size: 6.4pt; }
+  .report .fidelity-note { font-size: 6.6pt; }
+  .report .small { font-size: 7pt; }
 
-  .report .domain-comments {
-    column-count: 3; column-gap: 12pt; font-size: 7.2pt;
-  }
-  .report .domain-comments p { break-inside: avoid; }
-
-  .report table { font-size: 6.6pt; margin: 2pt 0 3pt; }
-  .report th { padding: 1.5pt 2.5pt; font-size: 6pt; letter-spacing: .03em; }
-  .report td { padding: 1.5pt 2.5pt; }
-  .report tr { break-inside: avoid; page-break-inside: avoid; }
-
-  .report .small { font-size: 6.4pt; }
-
-  @page { size: letter; margin: .34in; }
+  @page { size: letter; margin: .45in; }
 }

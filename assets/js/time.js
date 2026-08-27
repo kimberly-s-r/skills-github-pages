@@ -69,3 +69,27 @@ export function durationMinutes(inStamp, outStamp) {
   if (Number.isNaN(a) || Number.isNaN(b) || b < a) return null;
   return Math.round((b - a) / 60000);
 }
+
+/**
+ * Readable Time In / Time Out for the report header. A same-day range prints the date
+ * once with both clock times, instead of repeating the full date twice.
+ */
+export function timeRange(inStamp, outStamp) {
+  if (!inStamp) return '';
+  if (!outStamp) return prettyStamp(inStamp);
+  const a = String(inStamp).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  const b = String(outStamp).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  if (!a || !b) return `${prettyStamp(inStamp)} – ${prettyStamp(outStamp)}`;
+  if (a[1] !== b[1]) return `${prettyStamp(inStamp)} – ${prettyStamp(outStamp)}`;
+
+  const clock = (h, m) => `${+h % 12 || 12}:${m}`;
+  const mer = (h) => (+h < 12 ? 'a.m.' : 'p.m.');
+  const months = ['January','February','March','April','May','June','July',
+                  'August','September','October','November','December'];
+  const [, y, mo, d] = a[1].match(/(\d{4})-(\d{2})-(\d{2})/);
+  const date = `${months[+mo - 1]} ${+d}, ${y}`;
+
+  return mer(a[2]) === mer(b[2])
+    ? `${date} · ${clock(a[2], a[3])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`
+    : `${date} · ${clock(a[2], a[3])} ${mer(a[2])} – ${clock(b[2], b[3])} ${mer(b[2])} CT`;
+}

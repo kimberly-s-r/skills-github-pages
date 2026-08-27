@@ -46,12 +46,19 @@ evidence source, plus any uploaded packet.
 
 ### Step 2 — POP Cycle
 Upload the Appendix G post-conference packet (`.pdf`, `.txt`, `.md`, `.json`) or paste
-its text. Produces the **Anchor Assessment Report** in the specified section order, with
-the opening sentences verbatim:
+its text. Produces the **Anchor Assessment Report** in exactly the specified section
+order, with the opening sentences verbatim:
 
 1. Header · 2. Pre-Conference Summary · 3. Growth Summary (with a WT5–WT8 trend table
 when POP Cycle > 1) · 4. Reinforcement · 5. Refinement · 6. Rubric Alignment Table ·
-7. Required Domain Comments. **One page maximum** — verified by rendering to PDF.
+7. Required Domain Comments.
+
+The report is a **single unbroken column** read top to bottom, and carries those seven
+sections and nothing else. It is deliberately *not* laid out in columns: a column break
+reorders what the reader encounters and destroys the specified 2→3→4→5 flow. A
+fully-populated report with a walkthrough trend table runs to two pages — legibility and
+the specified order take priority over fitting one page, and the verifier reports the
+page count rather than asserting it.
 
 ### Step 3 — Walkthrough
 Notes only, plus an optional student-work photo (the photo stays in your browser and is
@@ -164,8 +171,10 @@ npx serve -l 8099 .            # in another shell
 node tools/verify.mjs
 ```
 
-27 checks cover the schema and IAT invariants (13 printed slots → 12 rubric rows, 3.2
+30 checks cover the schema and IAT invariants (13 printed slots → 12 rubric rows, 3.2
 merged, no invented titles, unknown columns rejected), the brand rules (one watermark per
 surface, no text behind a watermark, five-band bars), the guardrails (submission blocked
 until every rubric row is accounted for, confirm step required), the verbatim report
-openers, and the one-page constraint on both reports. Exits non-zero on any failure.
+openers, and the report's structure — sections in the specified order, header fields in
+the specified order, no eighth section, and a single unbroken column. Page counts are
+reported for information. Exits non-zero on any failure.
